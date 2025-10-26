@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
@@ -11,10 +10,13 @@ const FlowerIcon: React.FC = () => (
 );
 
 const AppleIcon: React.FC<{ id: string; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ id, onDragStart }) => (
-    <div id={id} draggable onDragStart={onDragStart} className="w-12 h-12 cursor-grab active:cursor-grabbing">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full drop-shadow" viewBox="0 0 24 24">
-            <path fill="#ef4444" d="M19.78 11.78a2.5 2.5 0 0 0-3.54 0a2.5 2.5 0 0 1-3.54 0a2.5 2.5 0 0 0-3.54 0a2.5 2.5 0 0 1-3.54 0a2.5 2.5 0 0 0-3.54 0c-.32.32-.5.75-.5 1.22c0 1.25.64 2.45 1.53 3.34c1.13 1.13 2.58 2.05 4.34 2.55c.42.12.87.18 1.33.18h.2c.46 0 .91-.06 1.33-.18c1.76-.5 3.2-1.42 4.34-2.55c.89-.89 1.53-2.09 1.53-3.34c0-.47-.18-.9-.5-1.22Z"/>
-            <path fill="#78350f" d="M15 4.25a2.5 2.5 0 0 0-2.5-2.5h-1a2.5 2.5 0 0 0-2.5 2.5V5h6Z"/>
+    <div id={id} draggable onDragStart={onDragStart} className="w-16 h-16 cursor-grab active:cursor-grabbing">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow">
+          <path d="M65,25 C75,10 90,15 90,15 C90,15 80,30 65,25 Z" fill="#4ade80" />
+          <path d="M68,24 C75,20 83,20 86,21" stroke="#22c55e" strokeWidth="1.5" fill="none" />
+          <path d="M50,35 C50,20 60,20 60,30" stroke="#78350f" strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d="M50,90 C10,90 10,40 50,40 C90,40 90,90 50,90" fill="#ef4444" />
+          <path d="M30,55 C35,50 45,50 45,55 C45,60 35,60 30,55" fill="white" opacity="0.9" transform="rotate(-30 37.5 57.5)"/>
         </svg>
     </div>
 );
