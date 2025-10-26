@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
+import { useAudio } from '../../contexts/AudioProvider';
 
 const FlowerIcon: React.FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
@@ -24,21 +26,39 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
     const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
     const [applesInBasket, setApplesInBasket] = useState(0);
     const [actionOnDialogueEnd, setActionOnDialogueEnd] = useState<(() => void) | null>(null);
+    const { isVoiceEnabled, playSound } = useAudio();
 
     const handleCountSelect = (count: number) => {
+        const transitionToStep2 = () => {
+            setStep(2);
+            setFeedback(null);
+        };
+
         if (count === 7) {
             setFeedback('correct');
-            setDialogue("Đúng rồi! Giờ bạn nhỏ ơi, hãy kéo 5 quả táo vào giỏ của Rồng con nào. Chỉ 5 thôi nha!");
-            setActionOnDialogueEnd(() => () => {
-                setStep(2);
-                setFeedback(null);
-            });
+            if (isVoiceEnabled) {
+                setDialogue("Đúng rồi! Giờ bạn nhỏ ơi, hãy kéo 5 quả táo vào giỏ của Rồng con nào. Chỉ 5 thôi nha!");
+                setActionOnDialogueEnd(() => () => {
+                    playSound('correct');
+                    transitionToStep2();
+                });
+            } else {
+                playSound('correct');
+                setDialogue("Hãy kéo 5 quả táo vào giỏ của Rồng con nào.");
+                setTimeout(transitionToStep2, 1000);
+            }
         } else {
             setFeedback('incorrect');
-            setDialogue("Ồ, chưa đúng rồi. Cùng đếm lại nào!");
-            setActionOnDialogueEnd(() => () => {
-                setFeedback(null);
-            });
+            if(isVoiceEnabled) {
+                setDialogue("Ồ, chưa đúng rồi. Cùng đếm lại nào!");
+                setActionOnDialogueEnd(() => () => {
+                    playSound('incorrect');
+                    setFeedback(null);
+                });
+            } else {
+                playSound('incorrect');
+                 setTimeout(() => setFeedback(null), 1000);
+            }
         }
     };
     
@@ -58,11 +78,19 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
     
     useEffect(() => {
         if (applesInBasket === 5) {
-             setFeedback('correct');
-            setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Số Đếm!");
-            setActionOnDialogueEnd(() => onComplete);
+            setFeedback('correct');
+            if (isVoiceEnabled) {
+                setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Số Đếm!");
+                setActionOnDialogueEnd(() => () => {
+                    playSound('success');
+                    onComplete();
+                });
+            } else {
+                playSound('success');
+                setTimeout(onComplete, 1000);
+            }
         }
-    }, [applesInBasket, onComplete]);
+    }, [applesInBasket, onComplete, isVoiceEnabled, playSound]);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();

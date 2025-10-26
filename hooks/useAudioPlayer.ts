@@ -1,7 +1,9 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateSpeech } from '../services/geminiService';
 import { decode, decodeAudioData } from '../utils/audioUtils';
-import { getAudioContext, resumeAudioContext } from '../utils/audioContext';
+import { getAudioContext } from '../utils/audioContext';
+import { useAudio } from '../contexts/AudioProvider';
 
 interface UseAudioPlayerProps {
   text: string;
@@ -13,46 +15,47 @@ export const useAudioPlayer = ({ text, onEnd }: UseAudioPlayerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   
+  const { isVoiceEnabled, disableVoice } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(getAudioContext());
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const textForBufferRef = useRef<string | null>(null);
 
-  // This effect handles loading the audio data.
-  // It only re-runs when the `text` prop changes.
   useEffect(() => {
     const loadAudio = async () => {
-      // Don't do anything if there's no text or if the current audio buffer
-      // is already for the correct text.
-      if (!text || text === textForBufferRef.current) {
+      if (!text || text === textForBufferRef.current || !isVoiceEnabled) {
         return;
       }
       
-      // Stop any audio that might be playing from a previous text.
       if (sourceRef.current) {
         try { sourceRef.current.stop(); } catch (e) { /* ignore */ }
         sourceRef.current = null;
         setIsPlaying(false);
       }
       
-      // We are now fetching for this new text.
       textForBufferRef.current = text;
       setIsLoading(true);
-      setAudioBuffer(null); // Clear previous buffer
+      setAudioBuffer(null);
 
       try {
         const base64Audio = await generateSpeech(text);
-        // Ensure the component hasn't requested a different text while we were fetching.
-        if (base64Audio && audioContextRef.current && text === textForBufferRef.current) {
+        
+        if (base64Audio === null) {
+          // API failed, disable voice for the rest of the session
+          disableVoice();
+          setIsLoading(false);
+          return;
+        }
+
+        if (audioContextRef.current && text === textForBufferRef.current) {
           const decodedBytes = decode(base64Audio);
           const buffer = await decodeAudioData(decodedBytes, audioContextRef.current, 24000, 1);
           setAudioBuffer(buffer);
         }
       } catch (error) {
         console.error("Failed to load audio:", error);
-        // If loading fails, nullify the ref to allow a retry for the same text.
+        disableVoice();
         textForBufferRef.current = null;
       } finally {
-        // Only stop loading if we are on the same text request.
         if (text === textForBufferRef.current) {
           setIsLoading(false);
         }
@@ -60,34 +63,26 @@ export const useAudioPlayer = ({ text, onEnd }: UseAudioPlayerProps) => {
     };
 
     loadAudio();
-  }, [text]);
+  }, [text, isVoiceEnabled, disableVoice]);
 
-  // Keep a ref to the onEnd callback to ensure `play` can be stable.
   const onEndRef = useRef(onEnd);
   useEffect(() => {
     onEndRef.current = onEnd;
   }, [onEnd]);
 
-  // This callback starts playback.
-  // It's stable with regard to `isPlaying` and `onEnd` state.
   const play = useCallback(() => {
-    resumeAudioContext();
-    const audioContext = audioContextRef.current;
-    
-    if (!audioBuffer || !audioContext) return;
+    if (!audioBuffer || !audioContextRef.current || !isVoiceEnabled) return;
 
-    // Use a functional update to avoid a dependency on `isPlaying`.
     setIsPlaying(currentlyPlaying => {
-      if (currentlyPlaying) return true; // Already playing.
+      if (currentlyPlaying) return true;
 
-      // Stop any lingering source before creating a new one.
       if (sourceRef.current) {
         try { sourceRef.current.stop(); } catch(e) {}
       }
 
-      const source = audioContext.createBufferSource();
+      const source = audioContextRef.current.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
+      source.connect(audioContextRef.current.destination);
       source.onended = () => {
         setIsPlaying(false);
         sourceRef.current = null;
@@ -97,9 +92,9 @@ export const useAudioPlayer = ({ text, onEnd }: UseAudioPlayerProps) => {
       };
       source.start(0);
       sourceRef.current = source;
-      return true; // Set state to playing.
+      return true;
     });
-  }, [audioBuffer]);
+  }, [audioBuffer, isVoiceEnabled]);
 
-  return { play, isLoading, isPlaying, isReady: !!audioBuffer };
+  return { play, isLoading, isPlaying, isReady: !!audioBuffer && isVoiceEnabled };
 };

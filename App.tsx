@@ -9,6 +9,7 @@ import EndScreen from './components/scenes/EndScreen';
 import DragonCharacter from './components/DragonCharacter';
 import GemIndicator from './components/GemIndicator';
 import { resumeAudioContext } from './utils/audioContext';
+import { AudioProvider } from './contexts/AudioProvider';
 
 export default function App(): React.ReactElement {
   const [gameStage, setGameStage] = useState<GameStage>(GameStage.START);
@@ -86,21 +87,23 @@ export default function App(): React.ReactElement {
   }, [gameStage]);
 
   return (
-    <main className={`w-full h-screen overflow-hidden bg-gradient-to-br ${backgroundClass} text-gray-800 flex flex-col justify-center items-center p-4`}>
-        <div className="absolute top-4 left-4 z-20">
-            <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow">Cuộc Phiêu Lưu Của Rồng Con</h1>
-        </div>
-        <div className="absolute top-4 right-4 z-20">
-            <GemIndicator gems={gems} />
-        </div>
-        <div className="relative w-full max-w-5xl h-full max-h-[90vh] md:max-h-[600px] flex flex-col md:flex-row items-end bg-white/30 backdrop-blur-sm rounded-3xl shadow-2xl p-4 md:p-6">
-            <div className="w-full md:w-1/3 h-1/4 md:h-full flex items-end justify-center">
-                <DragonCharacter />
+    <AudioProvider>
+        <main className={`w-full h-screen overflow-hidden bg-gradient-to-br ${backgroundClass} text-gray-800 flex flex-col justify-center items-center p-4`}>
+            <div className="absolute top-4 left-4 z-20">
+                <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow">Cuộc Phiêu Lưu Của Rồng Con</h1>
             </div>
-            <div className="w-full md:w-2/3 h-3/4 md:h-full flex-grow">
-                {renderScene()}
+            <div className="absolute top-4 right-4 z-20">
+                <GemIndicator gems={gems} />
             </div>
-        </div>
-    </main>
+            <div className="relative w-full max-w-5xl h-full max-h-[90vh] md:max-h-[600px] flex flex-col md:flex-row items-end bg-white/30 backdrop-blur-sm rounded-3xl shadow-2xl p-4 md:p-6">
+                <div className="w-full md:w-1/3 h-1/4 md:h-full flex items-end justify-center">
+                    <DragonCharacter />
+                </div>
+                <div className="w-full md:w-2/3 h-3/4 md:h-full flex-grow">
+                    {renderScene()}
+                </div>
+            </div>
+        </main>
+    </AudioProvider>
   );
 }

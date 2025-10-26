@@ -1,11 +1,11 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
 
-export async function generateSpeech(text: string): Promise<string> {
+export async function generateSpeech(text: string): Promise<string | null> {
   // Assume process.env.API_KEY is available
-  if (!process.env.API_KEY) {
-    console.error("API_KEY environment variable not set.");
-    // Return a silent audio to prevent errors, or handle appropriately
-    return ""; 
+  if (!process.env.API_KEY || !text) {
+    // Return null if there's no key or no text to generate
+    return null;
   }
 
   // Add a prefix to guide the voice style to a gentle, southern Vietnamese teacher's voice.
@@ -31,9 +31,9 @@ export async function generateSpeech(text: string): Promise<string> {
     if (base64Audio) {
       return base64Audio;
     }
-    return "";
+    return null;
   } catch (error) {
     console.error("Error generating speech:", error);
-    return "";
+    return null;
   }
 }

@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
+import { useAudio } from '../../contexts/AudioProvider';
 
 const items = [
     { id: 'car', color: 'red', name: 'Ô tô', isTarget: true, pos: 'top-10 left-10' },
@@ -9,11 +11,26 @@ const items = [
     { id: 'apple', color: 'red', name: 'Táo', isTarget: true, pos: 'top-1/2 left-1/2' }
 ];
 
-const Item: React.FC<{ color: string, name: string, selected: boolean, onClick: () => void }> = ({ color, name, selected, onClick }) => (
-    <div onClick={onClick} className={`w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-xl cursor-pointer transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} bg-${color}-500 hover:scale-105`}>
-        {name}
+const AppleIcon: React.FC = () => (
+    <div className="w-16 h-16">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full drop-shadow" viewBox="0 0 24 24">
+            <path fill="#ef4444" d="M19.78 11.78a2.5 2.5 0 0 0-3.54 0a2.5 2.5 0 0 1-3.54 0a2.5 2.5 0 0 0-3.54 0a2.5 2.5 0 0 1-3.54 0a2.5 2.5 0 0 0-3.54 0c-.32.32-.5.75-.5 1.22c0 1.25.64 2.45 1.53 3.34c1.13 1.13 2.58 2.05 4.34 2.55c.42.12.87.18 1.33.18h.2c.46 0 .91-.06 1.33-.18c1.76-.5 3.2-1.42 4.34-2.55c.89-.89 1.53-2.09 1.53-3.34c0-.47-.18-.9-.5-1.22Z"/>
+            <path fill="#78350f" d="M15 4.25a2.5 2.5 0 0 0-2.5-2.5h-1a2.5 2.5 0 0 0-2.5 2.5V5h6Z"/>
+        </svg>
     </div>
 );
+
+const Item: React.FC<{ item: typeof items[0], selected: boolean, onClick: () => void, disabled: boolean }> = ({ item, selected, onClick, disabled }) => {
+    const content = item.id === 'apple' ? <AppleIcon /> : item.name;
+    const bgClass = item.id === 'apple' ? 'bg-transparent' : `bg-${item.color}-500`;
+    const cursorClass = disabled ? 'cursor-not-allowed' : 'cursor-pointer';
+
+    return (
+        <div onClick={disabled ? undefined : onClick} className={`w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-xl transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} ${bgClass} ${cursorClass} ${!disabled && 'hover:scale-105'}`}>
+            {content}
+        </div>
+    );
+};
 
 const MatchItem: React.FC<{ color: string, content: string, onDragStart: (e: React.DragEvent<HTMLDivElement>) => void, id: string }> = ({color, content, onDragStart, id}) => (
     <div id={id} draggable onDragStart={onDragStart} className={`w-24 h-24 bg-${color}-400 rounded-lg flex items-center justify-center text-4xl cursor-grab active:cursor-grabbing`}>
@@ -35,6 +52,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
     const [selectedReds, setSelectedReds] = useState<Set<string>>(new Set());
     const [matched, setMatched] = useState({ yellow: false, blue: false });
     const [actionOnDialogueEnd, setActionOnDialogueEnd] = useState<(() => void) | null>(null);
+    const { isVoiceEnabled, playSound } = useAudio();
 
     const handleSelectRed = (id: string) => {
         if (step !== 1) return;
@@ -46,22 +64,40 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
 
     useEffect(() => {
         if (step === 1 && selectedReds.size === 3) {
-            setFeedback('correct');
-            setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
-            setActionOnDialogueEnd(() => () => {
+            const transitionToStep2 = () => {
                 setStep(2);
                 setFeedback(null);
-            });
+            };
+            setFeedback('correct');
+            if(isVoiceEnabled){
+                setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
+                setActionOnDialogueEnd(() => () => {
+                    playSound('correct');
+                    transitionToStep2();
+                });
+            } else {
+                playSound('correct');
+                setDialogue("Bây giờ, hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
+                setTimeout(transitionToStep2, 1000);
+            }
         }
-    }, [selectedReds, step]);
+    }, [selectedReds, step, isVoiceEnabled, playSound]);
     
     useEffect(() => {
         if (matched.yellow && matched.blue) {
              setFeedback('correct');
-             setDialogue("Tuyệt vời! Chúng ta đã có viên ngọc cuối cùng! Cảm ơn bạn nhỏ!");
-             setActionOnDialogueEnd(() => onComplete);
+             if(isVoiceEnabled){
+                setDialogue("Tuyệt vời! Chúng ta đã có viên ngọc cuối cùng! Cảm ơn bạn nhỏ!");
+                setActionOnDialogueEnd(() => () => {
+                    playSound('success');
+                    onComplete();
+                });
+             } else {
+                 playSound('success');
+                 setTimeout(onComplete, 1000);
+             }
         }
-    }, [matched, onComplete]);
+    }, [matched, onComplete, isVoiceEnabled, playSound]);
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, color: string) => {
         e.dataTransfer.setData("color", color);
@@ -71,13 +107,17 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
         e.preventDefault();
         const droppedColor = e.dataTransfer.getData("color");
         if (droppedColor === targetColor) {
+            playSound('correct');
             setMatched(prev => ({ ...prev, [targetColor]: true }));
         } else {
             setFeedback('incorrect');
-            setDialogue("Sai rồi, thử lại nhé!");
-            setActionOnDialogueEnd(() => () => {
-                setFeedback(null)
-            });
+            playSound('incorrect');
+            if(isVoiceEnabled){
+                setDialogue("Sai rồi, thử lại nhé!");
+                setActionOnDialogueEnd(() => () => setFeedback(null));
+            } else {
+                setTimeout(() => setFeedback(null), 1000);
+            }
         }
     };
     
@@ -94,8 +134,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
         if (step === 1) {
             return (
                 <div className="w-full h-full flex flex-wrap justify-center items-center gap-4">
-                    {items.filter(item => item.isTarget).map(item => <Item key={item.id} {...item} selected={selectedReds.has(item.id)} onClick={() => handleSelectRed(item.id)} />)}
-                     {items.filter(item => !item.isTarget).map(item => <Item key={item.id} {...item} selected={false} onClick={() => {}} />)}
+                    {items.map(item => <Item key={item.id} item={item} selected={selectedReds.has(item.id)} onClick={() => item.isTarget && handleSelectRed(item.id)} disabled={!item.isTarget} />)}
                 </div>
             );
         }
