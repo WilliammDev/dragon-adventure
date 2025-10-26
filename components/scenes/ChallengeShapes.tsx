@@ -19,6 +19,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [dialogue, setDialogue] = useState("Thử thách đầu tiên! Hãy tìm giúp Tí Hon tất cả đồ vật có hình TAM GIÁC nha, bé ơi! Có 3 cái lận đó!");
+  const [actionOnDialogueEnd, setActionOnDialogueEnd] = useState<(() => void) | null>(null);
 
   const handleSelect = (id: string) => {
     if (step !== 1) return;
@@ -35,7 +36,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
       if (step !== 2) return;
       setFeedback('correct');
       setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Hình Khối. Mời bé vỗ tay thật to nè!");
-      setTimeout(onComplete, 5000);
+      setActionOnDialogueEnd(() => onComplete);
   }
 
   useEffect(() => {
@@ -44,23 +45,29 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
       if (isCorrect) {
         setFeedback('correct');
         setDialogue("Chà, giỏi quá! Bây giờ, hãy nói to xem, hình CHỮ NHẬT là cái nào nhỉ? Bấm vào cái cửa sổ hình chữ nhật đi!");
-        setTimeout(() => {
+        setActionOnDialogueEnd(() => () => {
             setStep(2);
             setFeedback(null);
-        }, 5000); // Increased timeout to allow audio to play
+        });
       } else {
         setFeedback('incorrect');
         setDialogue("Ồ, Tí Hon nghĩ bạn nhỏ còn có thể làm tốt hơn! Thử lại một lần nữa nha.");
-        setTimeout(() => {
+        setActionOnDialogueEnd(() => () => {
           setSelected(new Set());
           setFeedback(null);
           setDialogue("Hãy tìm giúp Tí Hon tất cả đồ vật có hình TAM GIÁC nha, bé ơi!");
-        }, 2000);
+        });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
+  }, [selected, step]);
   
+  const handlePlaybackEnd = () => {
+    if (actionOnDialogueEnd) {
+      actionOnDialogueEnd();
+      setActionOnDialogueEnd(null);
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col justify-between p-4 animate-fade-in">
@@ -74,7 +81,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
         ))}
       </div>
       {feedback && <div className={`text-2xl font-bold text-center p-2 rounded-lg ${feedback === 'correct' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>{feedback === 'correct' ? 'Đúng rồi!' : 'Thử lại nhé!'}</div>}
-      <DialogueBox text={dialogue} autoPlay={true} />
+      <DialogueBox text={dialogue} autoPlay={true} onPlaybackEnd={handlePlaybackEnd} />
     </div>
   );
 };

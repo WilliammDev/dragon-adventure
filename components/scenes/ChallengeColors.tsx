@@ -28,14 +28,13 @@ const DropZone: React.FC<{ onDrop: (e: React.DragEvent<HTMLDivElement>) => void,
 );
 
 
-// FIX: Destructure onComplete from props to make it available in the component.
 const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     const [step, setStep] = useState(1);
     const [dialogue, setDialogue] = useState("Viên ngọc thứ hai lấp lánh rồi! Giờ là viên ngọc cuối cùng! Tí Hon thích màu ĐỎ! Bé ơi, hãy chỉ cho Tí Hon tất cả những gì có màu ĐỎ trong phòng này đi!");
     const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
     const [selectedReds, setSelectedReds] = useState<Set<string>>(new Set());
-
     const [matched, setMatched] = useState({ yellow: false, blue: false });
+    const [actionOnDialogueEnd, setActionOnDialogueEnd] = useState<(() => void) | null>(null);
 
     const handleSelectRed = (id: string) => {
         if (step !== 1) return;
@@ -49,21 +48,19 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
         if (step === 1 && selectedReds.size === 3) {
             setFeedback('correct');
             setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
-            setTimeout(() => {
+            setActionOnDialogueEnd(() => () => {
                 setStep(2);
                 setFeedback(null);
-            }, 2500);
+            });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedReds]);
+    }, [selectedReds, step]);
     
     useEffect(() => {
         if (matched.yellow && matched.blue) {
              setFeedback('correct');
              setDialogue("Tuyệt vời! Chúng ta đã có viên ngọc cuối cùng! Cảm ơn bạn nhỏ!");
-             setTimeout(onComplete, 3000);
+             setActionOnDialogueEnd(() => onComplete);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [matched, onComplete]);
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, color: string) => {
@@ -78,12 +75,20 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
         } else {
             setFeedback('incorrect');
             setDialogue("Sai rồi, thử lại nhé!");
-            setTimeout(() => setFeedback(null), 1500);
+            setActionOnDialogueEnd(() => () => {
+                setFeedback(null)
+            });
         }
     };
     
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => e.preventDefault();
-
+    
+    const handlePlaybackEnd = () => {
+        if (actionOnDialogueEnd) {
+            actionOnDialogueEnd();
+            setActionOnDialogueEnd(null);
+        }
+    };
 
     const renderStep = () => {
         if (step === 1) {
@@ -116,7 +121,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
         <div className="w-full h-full flex flex-col justify-between p-4 animate-fade-in">
             <div className="flex-grow">{renderStep()}</div>
             {feedback && <div className={`text-2xl font-bold text-center p-2 rounded-lg ${feedback === 'correct' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>{feedback === 'correct' ? 'Đúng rồi!' : 'Chưa đúng!'}</div>}
-            <DialogueBox text={dialogue} autoPlay={true} />
+            <DialogueBox text={dialogue} autoPlay={true} onPlaybackEnd={handlePlaybackEnd} />
         </div>
     );
 };

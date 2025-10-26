@@ -1,10 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 
 interface DialogueBoxProps {
   text: string;
   autoPlay?: boolean;
+  onPlaybackEnd?: () => void;
 }
 
 const SpeakerIcon: React.FC<{ isLoading: boolean, isPlaying: boolean, onClick: () => void, isReady: boolean }> = ({ isLoading, isPlaying, onClick, isReady }) => {
@@ -36,15 +36,14 @@ const SpeakerIcon: React.FC<{ isLoading: boolean, isPlaying: boolean, onClick: (
   );
 };
 
-const DialogueBox: React.FC<DialogueBoxProps> = ({ text, autoPlay = false }) => {
-  const { play, isLoading, isPlaying, isReady } = useAudioPlayer(text);
+const DialogueBox: React.FC<DialogueBoxProps> = ({ text, autoPlay = false, onPlaybackEnd }) => {
+  const { play, isLoading, isPlaying, isReady } = useAudioPlayer({ text, onEnd: onPlaybackEnd });
 
   useEffect(() => {
     if (autoPlay && isReady && !isPlaying) {
       play();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoPlay, isReady]);
+  }, [autoPlay, isReady, isPlaying, play]);
 
   return (
     <div className="w-full bg-white/50 backdrop-blur-md rounded-2xl p-4 flex items-center space-x-4 shadow-lg border border-white/30">
