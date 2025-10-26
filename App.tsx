@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { GameStage } from './types';
 import StartScreen from './components/scenes/StartScreen';
 import ChallengeShapes from './components/scenes/ChallengeShapes';
@@ -8,10 +8,32 @@ import ChallengeColors from './components/scenes/ChallengeColors';
 import EndScreen from './components/scenes/EndScreen';
 import DragonCharacter from './components/DragonCharacter';
 import GemIndicator from './components/GemIndicator';
+import { resumeAudioContext } from './utils/audioContext';
 
 export default function App(): React.ReactElement {
   const [gameStage, setGameStage] = useState<GameStage>(GameStage.START);
   const [gems, setGems] = useState<boolean[]>([false, false, false]);
+
+  useEffect(() => {
+    const unlockAudio = () => {
+      resumeAudioContext();
+      // Remove listeners once the audio context is unlocked.
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
+
 
   const advanceTo = (stage: GameStage) => {
     setGameStage(stage);

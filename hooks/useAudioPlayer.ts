@@ -1,35 +1,42 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateSpeech } from '../services/geminiService';
 import { decode, decodeAudioData } from '../utils/audioUtils';
-
-// This is a browser-only feature.
-// FIX: Cast window to any to allow access to vendor-prefixed webkitAudioContext for Safari support.
-const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+import { getAudioContext, resumeAudioContext } from '../utils/audioContext';
 
 export const useAudioPlayer = (text: string) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(getAudioContext());
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   useEffect(() => {
-    // Initialize AudioContext only once
-    if (!audioContextRef.current && AudioContext) {
-      audioContextRef.current = new AudioContext({ sampleRate: 24000 });
-    }
-
+    // Cleanup on unmount
     return () => {
-      // Cleanup on unmount
-      sourceRef.current?.stop();
+      if (sourceRef.current) {
+        try {
+          sourceRef.current.stop();
+        } catch (e) {
+            // Ignore errors from stopping an already stopped source
+        }
+      }
     };
   }, []);
 
   const loadAndPrepareAudio = useCallback(async (textToSpeak: string) => {
     if (!textToSpeak || !audioContextRef.current) return;
     setIsLoading(true);
-    setAudioBuffer(null);
+    // Invalidate previous buffer
+    setAudioBuffer(null); 
+    if (sourceRef.current) {
+        try {
+            sourceRef.current.stop();
+        } catch(e) {}
+        sourceRef.current = null;
+    }
+    setIsPlaying(false);
+
     try {
       const base64Audio = await generateSpeech(textToSpeak);
       if (base64Audio && audioContextRef.current) {
@@ -46,25 +53,27 @@ export const useAudioPlayer = (text: string) => {
 
   useEffect(() => {
     loadAndPrepareAudio(text);
+  // The dependency array intentionally omits loadAndPrepareAudio because we only want this to re-run when `text` changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
 
   const play = useCallback(() => {
-    if (!audioBuffer || !audioContextRef.current || isPlaying) return;
+    // Ensure the audio context is active
+    resumeAudioContext();
+    const audioContext = audioContextRef.current;
+
+    if (!audioBuffer || !audioContext || isPlaying) return;
 
     // Stop any previous sound
     if (sourceRef.current) {
-      sourceRef.current.stop();
+       try {
+        sourceRef.current.stop();
+       } catch(e){}
     }
     
-    // Resume context if it's suspended
-    if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-    }
-
-    const source = audioContextRef.current.createBufferSource();
+    const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioContextRef.current.destination);
+    source.connect(audioContext.destination);
     source.onended = () => {
       setIsPlaying(false);
       sourceRef.current = null;
