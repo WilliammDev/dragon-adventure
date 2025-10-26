@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 
@@ -36,7 +35,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
       if (step !== 2) return;
       setFeedback('correct');
       setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Hình Khối. Mời bé vỗ tay thật to nè!");
-      setTimeout(onComplete, 3000);
+      setTimeout(onComplete, 5000);
   }
 
   useEffect(() => {
@@ -48,7 +47,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
         setTimeout(() => {
             setStep(2);
             setFeedback(null);
-        }, 2000);
+        }, 5000); // Increased timeout to allow audio to play
       } else {
         setFeedback('incorrect');
         setDialogue("Ồ, Tí Hon nghĩ bạn nhỏ còn có thể làm tốt hơn! Thử lại một lần nữa nha.");
