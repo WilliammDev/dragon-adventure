@@ -10,6 +10,7 @@ import DragonCharacter from './components/DragonCharacter';
 import GemIndicator from './components/GemIndicator';
 import { resumeAudioContext } from './utils/audioContext';
 import { AudioProvider } from './contexts/AudioProvider';
+import MusicToggleButton from './components/MusicToggleButton';
 
 export default function App(): React.ReactElement {
   const [gameStage, setGameStage] = useState<GameStage>(GameStage.START);
@@ -92,7 +93,8 @@ export default function App(): React.ReactElement {
             <div className="absolute top-4 left-4 z-20">
                 <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow">Cuộc Phiêu Lưu Của Rồng Con</h1>
             </div>
-            <div className="absolute top-4 right-4 z-20">
+            <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
+                <MusicToggleButton />
                 <GemIndicator gems={gems} />
             </div>
             <div className="relative w-full max-w-5xl h-full max-h-[90vh] md:max-h-[600px] flex flex-col md:flex-row items-end bg-white/30 backdrop-blur-sm rounded-3xl shadow-2xl p-4 md:p-6">

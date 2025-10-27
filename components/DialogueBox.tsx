@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useAudio } from '../contexts/AudioProvider';
 
@@ -45,10 +44,19 @@ const SpeakerIcon: React.FC<{ isLoading: boolean, isPlaying: boolean, onClick: (
 const DialogueBox: React.FC<DialogueBoxProps> = ({ text, autoPlay = false, onPlaybackEnd }) => {
   const { isVoiceEnabled } = useAudio();
   const { play, isLoading, isPlaying, isReady } = useAudioPlayer({ text: isVoiceEnabled ? text : '', onEnd: onPlaybackEnd });
+  const autoPlayedRef = useRef(false);
 
+  // This effect ensures that auto-play only happens once when the audio becomes ready.
+  // It prevents the loop that occurred when `isPlaying` became false after playback ended.
   useEffect(() => {
-    if (autoPlay && isReady && !isPlaying) {
+    // When new text arrives, the audio is not ready, so we reset the auto-play flag.
+    if (!isReady) {
+      autoPlayedRef.current = false;
+    }
+
+    if (autoPlay && isReady && !isPlaying && !autoPlayedRef.current) {
       play();
+      autoPlayedRef.current = true; // Mark that auto-play has happened for this audio.
     }
   }, [autoPlay, isReady, isPlaying, play]);
 
