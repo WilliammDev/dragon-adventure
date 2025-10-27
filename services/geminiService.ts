@@ -13,8 +13,11 @@ export async function generateSpeech(text: string): Promise<string | null> {
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Use an environment variable for the model name, with a fallback to the appropriate TTS model.
+    const modelName = process.env.TTS_MODEL || "gemini-2.5-flash-preview-tts";
+
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
+      model: modelName,
       contents: [{ parts: [{ text: styledText }] }],
       config: {
         responseModalities: [Modality.AUDIO],

@@ -11,13 +11,11 @@ const FlowerIcon: React.FC = () => (
 
 const AppleIcon: React.FC<{ id: string; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ id, onDragStart }) => (
     <div id={id} draggable onDragStart={onDragStart} className="w-16 h-16 cursor-grab active:cursor-grabbing">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow">
-          <path d="M65,25 C75,10 90,15 90,15 C90,15 80,30 65,25 Z" fill="#4ade80" />
-          <path d="M68,24 C75,20 83,20 86,21" stroke="#22c55e" strokeWidth="1.5" fill="none" />
-          <path d="M50,35 C50,20 60,20 60,30" stroke="#78350f" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <path d="M50,90 C10,90 10,40 50,40 C90,40 90,90 50,90" fill="#ef4444" />
-          <path d="M30,55 C35,50 45,50 45,55 C45,60 35,60 30,55" fill="white" opacity="0.9" transform="rotate(-30 37.5 57.5)"/>
-        </svg>
+        <img 
+            src="https://storage.googleapis.com/aistudio-hub-generative-ai/b1392131-4b77-4402-a1f7-e722881a7051/ac755490-59f4-41d3-a4e9-063a89be1f60.png" 
+            alt="A cute cartoon apple" 
+            className="w-full h-full object-contain drop-shadow" 
+        />
     </div>
 );
 

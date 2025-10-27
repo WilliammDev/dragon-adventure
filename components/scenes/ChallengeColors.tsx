@@ -10,21 +10,9 @@ const items = [
     { id: 'apple', color: 'red', name: 'Táo', isTarget: true, pos: 'top-1/2 left-1/2' }
 ];
 
-const AppleIcon: React.FC = () => (
-    <div className="w-24 h-24">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow">
-          <path d="M65,25 C75,10 90,15 90,15 C90,15 80,30 65,25 Z" fill="#4ade80" />
-          <path d="M68,24 C75,20 83,20 86,21" stroke="#22c55e" strokeWidth="1.5" fill="none" />
-          <path d="M50,35 C50,20 60,20 60,30" stroke="#78350f" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <path d="M50,90 C10,90 10,40 50,40 C90,40 90,90 50,90" fill="#ef4444" />
-          <path d="M30,55 C35,50 45,50 45,55 C45,60 35,60 30,55" fill="white" opacity="0.9" transform="rotate(-30 37.5 57.5)"/>
-        </svg>
-    </div>
-);
-
 const Item: React.FC<{ item: typeof items[0], selected: boolean, onClick: () => void, disabled: boolean }> = ({ item, selected, onClick, disabled }) => {
-    const content = item.id === 'apple' ? <AppleIcon /> : item.name;
-    const bgClass = item.id === 'apple' ? 'bg-transparent' : `bg-${item.color}-500`;
+    const content = item.name;
+    const bgClass = `bg-${item.color}-500`;
     const cursorClass = disabled ? 'cursor-not-allowed' : 'cursor-pointer';
 
     return (
