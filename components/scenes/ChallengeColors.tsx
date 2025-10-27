@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
-import AppleIcon from '../AppleIcon';
 
 const items = [
     { id: 'car', color: 'red', name: 'Ô tô', isTarget: true, pos: 'top-10 left-10' },
@@ -20,19 +19,8 @@ const colorClasses: { [key: string]: string } = {
 
 const Item: React.FC<{ item: typeof items[0], selected: boolean, onClick: () => void, disabled: boolean }> = ({ item, selected, onClick, disabled }) => {
     const cursorClass = disabled ? 'cursor-not-allowed' : 'cursor-pointer';
-
-    if (item.id === 'apple') {
-        return (
-            <div
-                onClick={disabled ? undefined : onClick}
-                className={`w-24 h-24 p-1 rounded-lg flex items-center justify-center transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} ${cursorClass} ${!disabled && 'hover:scale-105'}`}
-            >
-                <AppleIcon className="w-20 h-20" />
-            </div>
-        );
-    }
-
     const bgClass = colorClasses[item.color] || 'bg-gray-400';
+    
     return (
         <div onClick={disabled ? undefined : onClick} className={`w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-xl transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} ${bgClass} ${cursorClass} ${!disabled && 'hover:scale-105'}`}>
             {item.name}
