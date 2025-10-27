@@ -1,40 +1,55 @@
 import React, { useState } from 'react';
 import DialogueBox from '../DialogueBox';
+import DragonCharacter from '../DragonCharacter';
 
 interface StartScreenProps {
   onStart: () => void;
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
-  const introDialogue = "Xin chào bé ơi! Tớ là Tí Hon, rồng con giữ Lâu đài Pha Lê. Ôi! Ôi! Lâu đài của tớ bị mất 3 viên ngọc quý rồi! Bé có thể giúp Tí Hon tìm lại không? Bé thật là anh hùng tí hon!";
-  const secondDialogue = "Luật chơi đơn giản lắm! Chúng mình sẽ vượt qua 3 thử thách. Vượt qua một thử thách, chúng mình tìm được một viên ngọc! Sẵn sàng chưa, bạn nhỏ ơi?";
-  
-  // The button is disabled until the intro audio finishes or is confirmed unavailable.
-  const [isInteractionAllowed, setIsInteractionAllowed] = useState(false);
+  const [isReadyButtonActive, setIsReadyButtonActive] = useState(false);
+  const introDialogue = "Chào mừng bạn nhỏ đến với Lâu đài Pha Lê của Tí Hon! Tí Hon cần bạn giúp thắp sáng lại lâu đài bằng cách thu thập 3 viên ngọc ma thuật. Bạn đã sẵn sàng chưa?";
+
+  const handleAudioStateChange = (isAvailable: boolean) => {
+    // If audio is not available (e.g., no API key), activate the button immediately.
+    if (!isAvailable) {
+      setIsReadyButtonActive(true);
+    }
+  };
+
+  const handlePlaybackEnd = () => {
+    // When audio playback finishes, activate the button.
+    setIsReadyButtonActive(true);
+  };
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center p-4 space-y-6 text-center animate-fade-in">
-        <div className="space-y-4">
-            <DialogueBox 
-              text={introDialogue} 
-              autoPlay={true}
-              onPlaybackEnd={() => setIsInteractionAllowed(true)}
-              onAudioAvailabilityChange={(isAvailable) => {
-                if (!isAvailable) {
-                  // If audio isn't available, allow the user to proceed immediately.
-                  setIsInteractionAllowed(true);
-                }
-              }}
-            />
-            <DialogueBox text={secondDialogue} />
-        </div>
-        <button
-            onClick={onStart}
-            disabled={!isInteractionAllowed}
-            className="mt-8 px-12 py-4 bg-yellow-400 text-white font-bold text-2xl rounded-full shadow-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
-        >
-            Sẵn sàng!
-        </button>
+    <div className="w-full h-full flex flex-col justify-center items-center p-4 space-y-8 text-center animate-fade-in">
+      <h1 className="text-5xl md:text-7xl font-bold text-white text-stroke drop-shadow-xl" style={{fontFamily: 'Arial', WebkitTextStroke: '2px rgba(0,0,0,0.2)'}}>
+          Bé Học Cùng Rồng Con
+      </h1>
+      
+      <DragonCharacter />
+      
+      <div className="w-full max-w-2xl">
+        <DialogueBox
+          text={introDialogue}
+          autoPlay={true}
+          onPlaybackEnd={handlePlaybackEnd}
+          onAudioAvailabilityChange={handleAudioStateChange}
+        />
+      </div>
+
+      <button
+        onClick={onStart}
+        disabled={!isReadyButtonActive}
+        className={`px-12 py-4 text-white font-bold text-2xl rounded-full shadow-lg transform transition-all duration-300 ease-in-out ${
+          isReadyButtonActive
+            ? 'bg-green-500 hover:bg-green-600 hover:scale-105 animate-pulse'
+            : 'bg-gray-400 cursor-not-allowed'
+        }`}
+      >
+        Sẵn sàng!
+      </button>
     </div>
   );
 };
