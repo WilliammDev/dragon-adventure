@@ -91,7 +91,7 @@ export default function App(): React.ReactElement {
     <AudioProvider>
         <main className={`w-full h-screen overflow-hidden bg-gradient-to-br ${backgroundClass} text-gray-800 flex flex-col justify-center items-center p-4`}>
             <div className="absolute top-4 left-4 z-20">
-                <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow">Cuộc Phiêu Lưu Của Rồng Con</h1>
+                <h1 className="text-4xl md:text-5xl font-title text-stroke text-white drop-shadow-md">Bé Học Cùng Rồng Con</h1>
             </div>
             <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
                 <MusicToggleButton />

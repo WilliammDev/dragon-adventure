@@ -41,7 +41,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
       
       if(isVoiceEnabled) {
         setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Hình Khối. Mời bé vỗ tay thật to nè!");
-        setActionOnDialogueEnd(() => () => {
+        setActionOnDialogueEnd(() => {
             playSound('success');
             onComplete();
         });
@@ -64,7 +64,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
         setFeedback('correct');
         if (isVoiceEnabled) {
             setDialogue("Chà, giỏi quá! Bây giờ, hãy nói to xem, hình CHỮ NHẬT là cái nào nhỉ? Bấm vào cái cửa sổ hình chữ nhật đi!");
-            setActionOnDialogueEnd(() => () => {
+            setActionOnDialogueEnd(() => {
                 playSound('correct');
                 transitionToStep2();
             });
@@ -77,7 +77,7 @@ const ChallengeShapes: React.FC<ChallengeShapesProps> = ({ onComplete }) => {
         setFeedback('incorrect');
         if (isVoiceEnabled) {
             setDialogue("Ồ, Tí Hon nghĩ bạn nhỏ còn có thể làm tốt hơn! Thử lại một lần nữa nha.");
-            setActionOnDialogueEnd(() => () => {
+            setActionOnDialogueEnd(() => {
               playSound('incorrect');
               setSelected(new Set());
               setFeedback(null);

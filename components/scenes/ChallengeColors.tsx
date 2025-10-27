@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
@@ -60,8 +61,8 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
             };
             setFeedback('correct');
             if(isVoiceEnabled){
-                setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
-                setActionOnDialogueEnd(() => () => {
+                setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠG nhé!");
+                setActionOnDialogueEnd(() => {
                     playSound('correct');
                     transitionToStep2();
                 });
@@ -78,7 +79,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
              setFeedback('correct');
              if(isVoiceEnabled){
                 setDialogue("Tuyệt vời! Chúng ta đã có viên ngọc cuối cùng! Cảm ơn bạn nhỏ!");
-                setActionOnDialogueEnd(() => () => {
+                setActionOnDialogueEnd(() => {
                     playSound('success');
                     onComplete();
                 });
@@ -104,7 +105,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
             playSound('incorrect');
             if(isVoiceEnabled){
                 setDialogue("Sai rồi, thử lại nhé!");
-                setActionOnDialogueEnd(() => () => setFeedback(null));
+                setActionOnDialogueEnd(() => setFeedback(null));
             } else {
                 setTimeout(() => setFeedback(null), 1000);
             }

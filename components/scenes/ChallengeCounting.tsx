@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
@@ -38,7 +39,7 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
             setFeedback('correct');
             if (isVoiceEnabled) {
                 setDialogue("Đúng rồi! Giờ bạn nhỏ ơi, hãy kéo 5 quả táo vào giỏ của Rồng con nào. Chỉ 5 thôi nha!");
-                setActionOnDialogueEnd(() => () => {
+                setActionOnDialogueEnd(() => {
                     playSound('correct');
                     transitionToStep2();
                 });
@@ -51,7 +52,7 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
             setFeedback('incorrect');
             if(isVoiceEnabled) {
                 setDialogue("Ồ, chưa đúng rồi. Cùng đếm lại nào!");
-                setActionOnDialogueEnd(() => () => {
+                setActionOnDialogueEnd(() => {
                     playSound('incorrect');
                     setFeedback(null);
                 });
@@ -81,7 +82,7 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
             setFeedback('correct');
             if (isVoiceEnabled) {
                 setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Số Đếm!");
-                setActionOnDialogueEnd(() => () => {
+                setActionOnDialogueEnd(() => {
                     playSound('success');
                     onComplete();
                 });

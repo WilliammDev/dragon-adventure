@@ -6,6 +6,7 @@ interface DialogueBoxProps {
   text: string;
   autoPlay?: boolean;
   onPlaybackEnd?: () => void;
+  onAudioAvailabilityChange?: (isAvailable: boolean) => void;
 }
 
 const SpeakerIcon: React.FC<{ isLoading: boolean, isPlaying: boolean, onClick: () => void, isReady: boolean }> = ({ isLoading, isPlaying, onClick, isReady }) => {
@@ -41,10 +42,19 @@ const SpeakerIcon: React.FC<{ isLoading: boolean, isPlaying: boolean, onClick: (
   );
 };
 
-const DialogueBox: React.FC<DialogueBoxProps> = ({ text, autoPlay = false, onPlaybackEnd }) => {
+const DialogueBox: React.FC<DialogueBoxProps> = ({ text, autoPlay = false, onPlaybackEnd, onAudioAvailabilityChange }) => {
   const { isVoiceEnabled } = useAudio();
   const { play, isLoading, isPlaying, isReady } = useAudioPlayer({ text: isVoiceEnabled ? text : '', onEnd: onPlaybackEnd });
   const autoPlayedRef = useRef(false);
+  const prevIsLoadingRef = useRef(isLoading);
+
+  useEffect(() => {
+    // When loading transitions from true to false, we know the availability of the audio.
+    if (prevIsLoadingRef.current && !isLoading) {
+      onAudioAvailabilityChange?.(isReady);
+    }
+    prevIsLoadingRef.current = isLoading;
+  }, [isLoading, isReady, onAudioAvailabilityChange]);
 
   // This effect ensures that auto-play only happens once when the audio becomes ready.
   // It prevents the loop that occurred when `isPlaying` became false after playback ended.
