@@ -2,24 +2,29 @@
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
+import AppleIcon from '../AppleIcon';
 
 const FlowerIcon: React.FC = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h.5a1.5 1.5 0 010 3H14a1 1 0 00-1 1v.5a1.5 1.5 0 01-3 0V9a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H9a1 1 0 001-1v-.5z" />
-        <path d="M10 12.5a1.5 1.5 0 01-3 0V12a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H6a1 1 0 001-1v-.5a1.5 1.5 0 013 0V7a1 1 0 001 1h.5a1.5 1.5 0 010 3H11a1 1 0 00-1 1v.5z" />
-    </svg>
-);
-
-const AppleIcon: React.FC<{ id: string; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ id, onDragStart }) => (
-    <div id={id} draggable onDragStart={onDragStart} className="w-16 h-16 cursor-grab active:cursor-grabbing">
-        <img 
-            src="https://storage.googleapis.com/aistudio-hub-generative-ai/b1392131-4b77-4402-a1f7-e722881a7051/ac755490-59f4-41d3-a4e9-063a89be1f60.png" 
-            alt="A cute cartoon apple" 
-            className="w-full h-full object-contain drop-shadow" 
-        />
+    // Replaced the old icon with a more colorful and appealing cartoon flower SVG.
+    <div className="h-16 w-16 drop-shadow-md">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            {/* A subtle green leaf */}
+            <path d="M 60 90 C 70 70, 90 80, 80 100 Z" fill="#86efac" transform="rotate(-30 70 90)" />
+            {/* Six pink petals, rotated around the center */}
+            <g fill="#f9a8d4"> {/* pink-300 */}
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(0, 50, 50)" />
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(60, 50, 50)" />
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(120, 50, 50)" />
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(180, 50, 50)" />
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(240, 50, 50)" />
+                <ellipse cx="50" cy="25" rx="16" ry="25" transform="rotate(300, 50, 50)" />
+            </g>
+            {/* A layered center for a cuter look */}
+            <circle cx="50" cy="50" r="20" fill="#fde047" /> {/* yellow-300 */}
+            <circle cx="50" cy="50" r="15" fill="#fef08a" /> {/* yellow-200 */}
+        </svg>
     </div>
 );
-
 
 const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     const [step, setStep] = useState(1);
@@ -124,7 +129,11 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
         return (
             <div className="flex flex-col items-center justify-around h-full">
                 <div className="flex flex-wrap justify-center gap-2">
-                    {Array(8).fill(0).map((_, i) => <AppleIcon key={`apple-${i}`} id={`apple-${i}`} onDragStart={handleDragStart} />)}
+                    {Array(8).fill(0).map((_, i) => (
+                        <div key={`apple-${i}`} id={`apple-${i}`} draggable onDragStart={handleDragStart} className="cursor-grab active:cursor-grabbing">
+                            <AppleIcon />
+                        </div>
+                    ))}
                 </div>
                 <div onDrop={handleDrop} onDragOver={handleDragOver} className="w-48 h-32 bg-yellow-800/50 rounded-lg flex items-center justify-center text-xl font-bold border-2 border-dashed border-yellow-900">
                     Thả táo vào đây ({applesInBasket}/5)

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import DialogueBox from '../DialogueBox';
 import { useAudio } from '../../contexts/AudioProvider';
+import AppleIcon from '../AppleIcon';
 
 const items = [
     { id: 'car', color: 'red', name: 'Ô tô', isTarget: true, pos: 'top-10 left-10' },
@@ -10,6 +11,12 @@ const items = [
     { id: 'book', color: 'green', name: 'Sách', isTarget: false, pos: 'bottom-1/4 left-1/4' },
     { id: 'apple', color: 'red', name: 'Táo', isTarget: true, pos: 'top-1/2 left-1/2' }
 ];
+
+const colorClasses: { [key: string]: string } = {
+  red: 'bg-red-500',
+  blue: 'bg-blue-500',
+  green: 'bg-green-500',
+};
 
 const Item: React.FC<{ item: typeof items[0], selected: boolean, onClick: () => void, disabled: boolean }> = ({ item, selected, onClick, disabled }) => {
     const cursorClass = disabled ? 'cursor-not-allowed' : 'cursor-pointer';
@@ -20,16 +27,12 @@ const Item: React.FC<{ item: typeof items[0], selected: boolean, onClick: () => 
                 onClick={disabled ? undefined : onClick}
                 className={`w-24 h-24 p-1 rounded-lg flex items-center justify-center transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} ${cursorClass} ${!disabled && 'hover:scale-105'}`}
             >
-                <img
-                    src="https://storage.googleapis.com/aistudio-hub-generative-ai/b1392131-4b77-4402-a1f7-e722881a7051/ac755490-59f4-41d3-a4e9-063a89be1f60.png"
-                    alt="Quả táo hoạt hình dễ thương"
-                    className="w-full h-full object-contain drop-shadow"
-                />
+                <AppleIcon className="w-20 h-20" />
             </div>
         );
     }
 
-    const bgClass = `bg-${item.color}-500`;
+    const bgClass = colorClasses[item.color] || 'bg-gray-400';
     return (
         <div onClick={disabled ? undefined : onClick} className={`w-24 h-24 rounded-lg flex items-center justify-center text-white font-bold text-xl transition-all duration-300 ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''} ${bgClass} ${cursorClass} ${!disabled && 'hover:scale-105'}`}>
             {item.name}
@@ -75,7 +78,7 @@ const ChallengeColors: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
             };
             setFeedback('correct');
             if(isVoiceEnabled){
-                setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠG nhé!");
+                setDialogue("Giỏi quá! Cuối cùng, bạn nhỏ hãy ghép cặp con bướm màu VÀNG với bông hoa màu XANH DƯƠNG nhé!");
                 setActionOnDialogueEnd(() => {
                     playSound('correct');
                     transitionToStep2();
