@@ -40,17 +40,17 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
             setFeedback(null);
         };
 
-        if (count === 7) {
+        if (count === 2) { // Correct count is now 2 flowers
             setFeedback('correct');
             if (isVoiceEnabled) {
-                setDialogue("Đúng rồi! Giờ bạn nhỏ ơi, hãy kéo 5 quả táo vào giỏ của Rồng con nào. Chỉ 5 thôi nha!");
+                setDialogue("Đúng rồi! Giờ bạn nhỏ ơi, hãy kéo 3 quả táo vào giỏ của Rồng con nào. Chỉ 3 thôi nha!");
                 setActionOnDialogueEnd(() => {
                     playSound('correct');
                     transitionToStep2();
                 });
             } else {
                 playSound('correct');
-                setDialogue("Hãy kéo 5 quả táo vào giỏ của Rồng con nào.");
+                setDialogue("Hãy kéo 3 quả táo vào giỏ của Rồng con nào.");
                 setTimeout(transitionToStep2, 1000);
             }
         } else {
@@ -76,14 +76,14 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
         e.preventDefault();
         const appleId = e.dataTransfer.getData("appleId");
         const appleEl = document.getElementById(appleId);
-        if (appleEl && applesInBasket < 5) {
+        if (appleEl && applesInBasket < 3) {
             appleEl.style.display = 'none';
             setApplesInBasket(prev => prev + 1);
         }
     };
     
     useEffect(() => {
-        if (applesInBasket === 5) {
+        if (applesInBasket === 3) {
             setFeedback('correct');
             if (isVoiceEnabled) {
                 setDialogue("Chính xác! Yeeee! Bạn nhỏ giỏi quá! Chúng mình đã tìm thấy viên ngọc Số Đếm!");
@@ -113,11 +113,11 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
         if (step === 1) {
             return (
                 <div className="flex flex-col items-center justify-center h-full">
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                        {Array(7).fill(0).map((_, i) => <FlowerIcon key={i} />)}
+                    <div className="flex justify-center items-center gap-4 mb-4">
+                        {Array(2).fill(0).map((_, i) => <FlowerIcon key={i} />)}
                     </div>
                     <div className="flex space-x-4">
-                        {[5, 8, 7, 6].map(num => (
+                        {[4, 2, 1, 3].map(num => (
                             <button key={num} onClick={() => handleCountSelect(num)} className="px-6 py-3 bg-blue-500 text-white font-bold text-2xl rounded-lg hover:bg-blue-600 transition-transform hover:scale-110">
                                 {num}
                             </button>
@@ -129,14 +129,14 @@ const ChallengeCounting: React.FC<{ onComplete: () => void }> = ({ onComplete })
         return (
             <div className="flex flex-col items-center justify-around h-full">
                 <div className="flex flex-wrap justify-center gap-2">
-                    {Array(8).fill(0).map((_, i) => (
+                    {Array(5).fill(0).map((_, i) => (
                         <div key={`apple-${i}`} id={`apple-${i}`} draggable onDragStart={handleDragStart} className="cursor-grab active:cursor-grabbing">
                             <AppleIcon />
                         </div>
                     ))}
                 </div>
                 <div onDrop={handleDrop} onDragOver={handleDragOver} className="w-48 h-32 bg-yellow-800/50 rounded-lg flex items-center justify-center text-xl font-bold border-2 border-dashed border-yellow-900">
-                    Thả táo vào đây ({applesInBasket}/5)
+                    Thả táo vào đây ({applesInBasket}/3)
                 </div>
             </div>
         );
